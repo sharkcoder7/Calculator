@@ -1,5 +1,5 @@
 # Calculator
 
-![](screenshot.png)
+![](images/screenshot.png)
 
 
