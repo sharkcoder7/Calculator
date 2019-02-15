@@ -204,16 +204,17 @@ function recipButtonClicked(evt) {
         return;
     }
 
+    let formatStr = "recip(" + entryStr + ")";
+    bufferEntry.push(formatStr);
+
     if (entryStr === "0") {
         setDivideByZeroLockup();
         playDingSound();
-        return;
+    } else {
+        isRecipMode = true;
+        entryStr = getString(prettyRound(1 / getNumber(entryStr)));
     }
 
-    isRecipMode = true;
-    let formatStr = "recip(" + entryStr + ")";
-    bufferEntry.push(formatStr);
-    entryStr = getString(prettyRound(1 / getNumber(entryStr)));
     displayResultEntry(entryStr);
     displayBufferEntry();
 
@@ -225,16 +226,17 @@ function sqrtButtonClicked(evt) {
         return;
     }
 
+    let formatStr = "sqrt(" + entryStr + ")";
+    bufferEntry.push(formatStr);
+
     if (getNumber(entryStr) < 0) {
         setInvalidNumLockup();
         playDingSound();
-        return;
+    } else {
+        isSqrtMode = true;
+        entryStr = getString(prettyRound(sqrt(entryStr)));
     }
 
-    isSqrtMode = true;
-    let formatStr = "sqrt(" + entryStr + ")";
-    bufferEntry.push(formatStr);
-    entryStr = getString(prettyRound(sqrt(entryStr)));
     displayResultEntry(entryStr);
     displayBufferEntry();
 }
@@ -294,6 +296,25 @@ function calculate() {
         return entryStr;
     }
 
+    if (bufferEntry[bufferEntry.length-1] == "*") {
+        console.log("last operator is *");
+    }
+
+    if (bufferEntry[bufferEntry.length-1] == "/") {
+        console.log("last operator is /");
+    }
+
+    var total = standardCalculation();
+
+    if (total === NaN) return;
+
+    total = prettyRound(total);
+    console.log("total = ", total);
+    return getString(total);
+}
+
+
+function standardCalculation() {
     var total = getNumber(bufferEntry[0]);
     for (var i = 1; i < bufferEntry.length - 1; i += 2) {
         let operator = bufferEntry[i];
@@ -323,9 +344,10 @@ function calculate() {
                 break;
         }
     }
-    total = prettyRound(total);
-    return getString(total);
+    console.log("standard total: ", total);
+    return total;
 }
+
 
 function repeatLastOperation() {
     let total = eval(entryStr + lastOprStr);
@@ -347,6 +369,13 @@ function displayBufferEntry() {
 }
 
 function displayResultEntry(numStr) {
+
+    if (isDivByZeroLockup) {
+        numStr = "cannot divide by zero";
+    } else if (isInvalidNumLockup) {
+        numStr = "invalid number";
+    }
+
     let el = document.getElementById("resultText");
     if (numStr.length > 17) {
         el.style.fontSize = "1.2rem";
@@ -374,6 +403,8 @@ function resetEntry() {
     hasDecimal = false;
     doneEqual = false;
     isPercentMode = false;
+    isDivByZeroLockup = false;
+    isInvalidNumLockup = false;
     displayResultEntry(entryStr);
 }
 
@@ -383,8 +414,6 @@ function resetEverything() {
     isOperatorMode = false;
     isRecipMode = false;
     isSqrtMode = false;
-    isDivByZeroLockup = false;
-    isInvalidNumLockup = false;
     lastOprStr = "";
 }
 
@@ -401,12 +430,10 @@ function allClearClicked(evt) {
 }
 
 function setDivideByZeroLockup() {
-    displayResultEntry("cannot divide by zero");
     isDivByZeroLockup = true;
 }
 
 function setInvalidNumLockup() {
-    displayResultEntry("invalid number");
     isInvalidNumLockup = true;
 }
 
