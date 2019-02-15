@@ -7,6 +7,7 @@ var entryStr = "0";
 var hasDecimal = false;
 var isOperatorMode = false;
 var isDivByZeroLockup = false;
+var isRecipMode = false;
 var doneEqual = false;
 var dingSound;
 
@@ -36,13 +37,18 @@ function numButtonClicked(evt) {
         return;
     }
 
-    if (isTooLong(entryStr)) {
+    if (!doneEqual && !isRecipMode && isTooLong(entryStr)) {
         playDingSound();
         return;
     }
 
     if (entryStr === "0" || isOperatorMode) {
         entryStr = getString(evt.target.innerText);
+    } else if (isRecipMode) {
+        entryStr = getString(evt.target.innerText);
+        bufferEntry.pop();
+        isRecipMode = false;
+        displayBufferEntry();
     } else if (doneEqual) {
         entryStr = evt.target.innerText;
         doneEqual = false;
@@ -121,6 +127,9 @@ function doOperation(opr) {
     if (isOperatorMode) {
         bufferEntry.pop();
         bufferEntry.push(opr);
+    } else if (isRecipMode) {
+        bufferEntry.push(opr);
+        entryStr = calculate();
     } else {
         bufferEntry.push(entryStr);
         bufferEntry.push(opr);
@@ -143,6 +152,15 @@ function recipButtonClicked(evt) {
         playDingSound();
         return;
     }
+
+    let recipStr = "recip(" + entryStr + ")";
+    bufferEntry.push(recipStr);
+    entryStr = 1 / getNumber(entryStr);
+    entryStr = prettyRound(entryStr);
+    isRecipMode = true;
+    document.getElementById("resultText").innerHTML = getString(entryStr);
+    displayBufferEntry();
+
 }
 
 function equalButtonClicked(evt) {
@@ -155,6 +173,7 @@ function equalButtonClicked(evt) {
     entryStr = calculate();
     clearBufferEntry();
     isOperatorMode = false;
+    isRecipMode = false;
     hasDecimal = false;
     doneEqual = true;
 }
@@ -165,10 +184,10 @@ function calculate() {
         return entryStr;
     }
 
-    var total = Number(bufferEntry[0]);
+    var total = getNumber(bufferEntry[0]);
     for (var i = 1; i < bufferEntry.length - 1; i += 2) {
         let operator = bufferEntry[i];
-        let operand = Number(bufferEntry[i + 1]);
+        let operand = getNumber(bufferEntry[i + 1]);
         switch (operator) {
             case "+":
                 total += operand;
@@ -190,7 +209,7 @@ function calculate() {
                 break;
         }
     }
-    total = Math.round(total * 100000000000) / 100000000000; // round beautifully
+    total = prettyRound(total);
     document.getElementById("resultText").innerHTML = getString(total);
     return getString(total);
 }
@@ -211,7 +230,7 @@ function displayBufferEntry() {
 
 function clearBufferEntry() {
     bufferEntry = [];
-    document.getElementById("progressText").innerHTML = "&nbsp;";
+    document.getElementById("progressText").innerHTML = "";
 }
 
 function resetEntry() {
@@ -224,6 +243,7 @@ function resetEverything() {
     resetEntry();
     clearBufferEntry();
     isOperatorMode = false;
+    isRecipMode = false;
     isDivByZeroLockup = false;
     doneEqual = false;
 }
@@ -254,10 +274,42 @@ function getString(num) {
     return "" + num;
 }
 
+function getNumber(str) {
+
+    if (!isNaN(str)) {
+        return Number(str);
+    }
+
+    let regex = /^recip/i;
+    if (regex.test(str)) {
+        let num = eval(str);
+        console.log("recip: ", num);
+        return num;
+    }
+
+    return NaN;
+
+}
+
 function isTooLong(str) {
+
+    // Force to become a string before continue
+    if (typeof str !== String) {
+        str = getString(str);
+    }
+
     let tmpStr = str.replace(".", "");
     if (tmpStr.length == 16) {
         return true;
     }
     return false;
 }
+
+function prettyRound(num) {
+    return Math.round(num * 1000000000000000) / 1000000000000000;
+}
+
+function recip(num) {
+    return 1/num;
+}
+
