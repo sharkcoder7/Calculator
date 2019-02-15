@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', startCalculator);
 
-var numInputStr = "0";
+var entryStr = "0";
 var hasDecimal = false;
 var dingSound;
 
@@ -11,43 +11,45 @@ function startCalculator() {
     Array.from(document.getElementsByClassName("numButtons")).forEach(button => button.addEventListener("click", numButtonClicked));
     document.getElementById("buttonDel").addEventListener("click", delButtonClicked);
     document.getElementById("buttonDot").addEventListener("click", dotButtonClicked);
+    document.getElementById("buttonCE").addEventListener("click", clearEntryClicked);
     
     // initialize sound element
     dingSound = document.getElementById("dingSound");
+
 }
 
 function numButtonClicked(evt) {
     console.log(evt.target.innerText);
 
-    if (isTooLong(numInputStr)) {
+    if (isTooLong(entryStr)) {
         playDingSound();
         return;
     } 
 
-    if (numInputStr === "0") {
-        numInputStr = getString(evt.target.innerText);
+    if (entryStr === "0") {
+        entryStr = getString(evt.target.innerText);
     } else {
-        numInputStr += evt.target.innerText;
+        entryStr += evt.target.innerText;
     }
 
-    document.getElementById("resultText").innerHTML = numInputStr;
-    console.log(numInputStr);
+    document.getElementById("resultText").innerHTML = entryStr;
+    console.log(entryStr);
 }
 
 function delButtonClicked(evt) {
     console.log(evt.target.innerText);
 
-    if (numInputStr[numInputStr.length-1] === ".") {
+    if (entryStr[entryStr.length-1] === ".") {
         hasDecimal = false;
     }
 
-    let numStr = numInputStr.slice(0, -1);
+    let numStr = entryStr.slice(0, -1);
     if (numStr.length == 0) {
-        numInputStr = "0";
+        resetEntry();
     } else {
-        numInputStr = numStr;
+        entryStr = numStr;
     }
-    document.getElementById("resultText").innerHTML = numInputStr;
+    document.getElementById("resultText").innerHTML = entryStr;
 }
 
 function dotButtonClicked(evt) {
@@ -57,8 +59,19 @@ function dotButtonClicked(evt) {
         return;
     }
     hasDecimal = true;
-    numInputStr += ".";
-    document.getElementById("resultText").innerHTML = numInputStr;
+    entryStr += ".";
+    document.getElementById("resultText").innerHTML = entryStr;
+}
+
+function resetEntry() {
+    entryStr = "0";
+    hasDecimal = false;
+    document.getElementById("resultText").innerHTML = entryStr;
+}
+
+function clearEntryClicked(evt) {
+    console.log("ce clicked");
+    resetEntry();
 }
 
 function playDingSound() {
