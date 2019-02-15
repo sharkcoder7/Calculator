@@ -33,12 +33,8 @@ function startCalculator() {
 }
 
 function numButtonClicked(evt) {
-    if (isDivByZeroLockup) {
-        playDingSound();
-        return;
-    }
-
-    if (!doneEqual && !isRecipMode && isTooLong(entryStr)) {
+    if (isDivByZeroLockup ||
+       (!doneEqual && !isRecipMode && isTooLong(entryStr))) {
         playDingSound();
         return;
     }
@@ -62,12 +58,10 @@ function numButtonClicked(evt) {
 }
 
 function delButtonClicked(evt) {
-    if (isDivByZeroLockup) {
-        playDingSound();
-        return;
-    }
 
-    if (isOperatorMode) {
+    if (isDivByZeroLockup ||
+        isOperatorMode ||
+        doneEqual) {
         playDingSound();
         return;
     }
@@ -253,6 +247,7 @@ function clearBufferEntry() {
 function resetEntry() {
     entryStr = "0";
     hasDecimal = false;
+    doneEqual = false;
     document.getElementById("resultText").innerHTML = entryStr;
 }
 
@@ -262,7 +257,7 @@ function resetEverything() {
     isOperatorMode = false;
     isRecipMode = false;
     isDivByZeroLockup = false;
-    doneEqual = false;
+    lastOprStr = "";
 }
 
 function clearEntryClicked(evt) {
@@ -327,6 +322,5 @@ function prettyRound(num) {
 }
 
 function recip(num) {
-    return 1/num;
+    return 1 / num;
 }
-

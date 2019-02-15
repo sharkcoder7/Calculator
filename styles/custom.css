@@ -18,7 +18,7 @@ body {
     margin: auto;
     margin-top: 50px;
     background-color: burlywood;
-    width: 380px;
+    width: 332px;
     height: 500px;
     text-align: right;
     border-radius: 3%;
@@ -29,41 +29,55 @@ body {
     display: block;
     font-family: 'Oxygen Mono', monospace;
     background-color: gainsboro;
-    margin: 10px 24px;
-    padding: 20px 10px;
-    height: 40px;
+    margin: 10px 20px;
+    padding: 10px 10px;
+    height: 50px;
     border-radius: 5px;
     box-shadow: inset -1px 2px 8px rgba(100, 100, 100, .8);
 }
 
 #progressText {
-    height: 1rem;
+    width: 100%;
+    height: 20%;
     font-size: 0.8rem;
     margin-bottom: 4px;
     white-space: nowrap;
     color: gray;
 }
 
-#resultText {
-    font-size: 1.5rem;
+#memIndicator {
+    width: 4%;
+    height: 50%;
+    padding: 0;
+    float: left;
+    margin-top: 15px;
+    color: #383838;
+}
 
+#resultText {
+    width: 100%;
+    height: 50%;
+    font-size: 1.4rem;
+    margin-top: 14px;
 }
 
 #buttonContainer {
     margin: 2px;
-    padding-left: 18px;
+    padding-top: 2px;
+    padding-right: 9px;
     display: block;
-    text-align: left;
+    text-align: right;
 }
 
 .calButtons {
     font-size: 1.2rem;
     width: 56px;
     height: 40px;
-    margin: 10px 4px;
+    margin: 10px 1.5px;
     color: whitesmoke;
     background-color: brown;
     border-color: rgb(153, 38, 38);
+    text-align: center;
     border-radius: 12px;
     box-shadow: -1px 2px 8px rgba(100, 100, 100, .8);
     outline: none;
@@ -76,16 +90,16 @@ body {
     transform: translateY(2px);
 }
 
-.calButtons:hover {
+/* .calButtons:hover {
     background-color: rgb(221, 101, 101);
-}
+} */
 
 #buttonEql {
     height: 98px;
     float: right;
-    margin-right: 25px;
+    margin-left: 6px;
 }
 
 #button0 {
-    width: 124px;
+    width: 119px;
 }
