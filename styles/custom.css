@@ -1,3 +1,7 @@
+html {
+    padding-top: 0.1px; /* disable margin collapse */
+}
+
 body {
     height: 120%;
     min-width: 336px;
@@ -22,7 +26,7 @@ body {
 #calculatorFrame {
     display: block;
     margin: auto;
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 30px;
     background-color: burlywood;
     width: 332px;
@@ -118,6 +122,8 @@ body {
     background: #ffffff88;
     padding: 10px 16px 0px 16px;
     border-radius: 10px;
+    width: 368px;
+    margin-top: 10px;
 }
 
 #modeBar {

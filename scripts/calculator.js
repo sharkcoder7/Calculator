@@ -16,6 +16,7 @@ var doneEqual = false;
 var dingSound;
 var lastOprStr = "";
 var memStorage = 0;
+var calcMode = 0;
 
 function startCalculator() {
     document.getElementById("button0").addEventListener("click", numButtonClicked);
@@ -35,6 +36,23 @@ function startCalculator() {
 
     // initialize sound element
     dingSound = document.getElementById("dingSound");
+
+    // add listener to detect change of Calculator mode
+    document.getElementById("calculatorMode").onchange = updateCalculationMode;
+
+}
+
+function updateCalculationMode() {
+    resetEverything();
+    calcMode = document.getElementById("calculatorMode").value;
+
+    if (calcMode == 0) {
+        document.getElementById("modeExplanation").innerHTML = "Calculate from left to right, ignoring operator precedence";
+        document.getElementById("modeExample").innerHTML = "eg. 2 + 3 x 5 + 1 = 26";
+    } else {
+        document.getElementById("modeExplanation").innerHTML = "Following operator precedence to do calculation";
+        document.getElementById("modeExample").innerHTML = "eg. 2 + 3 x 5 + 1 = 18";
+    }
 
 }
 
@@ -296,17 +314,13 @@ function calculate() {
         return entryStr;
     }
 
-    if (bufferEntry[bufferEntry.length-1] == "*") {
-        console.log("last operator is *");
+    var total = 0;
+
+    if (calcMode == 0) { // standard calculation
+        total = standardCalculation(bufferEntry);
+    } else {
+        total = scientificCalculation(bufferEntry);
     }
-
-    if (bufferEntry[bufferEntry.length-1] == "/") {
-        console.log("last operator is /");
-    }
-
-    var total = standardCalculation();
-
-    if (total === NaN) return;
 
     total = prettyRound(total);
     console.log("total = ", total);
@@ -314,11 +328,11 @@ function calculate() {
 }
 
 
-function standardCalculation() {
-    var total = getNumber(bufferEntry[0]);
-    for (var i = 1; i < bufferEntry.length - 1; i += 2) {
-        let operator = bufferEntry[i];
-        let operand = getNumber(bufferEntry[i + 1]);
+function standardCalculation(arrEntry) {
+    var total = getNumber(arrEntry[0]);
+    for (var i = 1; i < arrEntry.length - 1; i += 2) {
+        let operator = arrEntry[i];
+        let operand = getNumber(arrEntry[i + 1]);
         switch (operator) {
             case "+":
                 total += operand;
@@ -337,14 +351,34 @@ function standardCalculation() {
                     setDivideByZeroLockup();
                     return;
                 }
-                console.log("total: ", total, " operand: ", operand);
+                //console.log("total: ", total, " operand: ", operand);
                 total /= operand;
                 lastOprStr = " / " + operand;
-                console.log("new total: ", total);
+                //console.log("new total: ", total);
                 break;
         }
     }
-    console.log("standard total: ", total);
+    //console.log("standard total: ", total);
+    return total;
+}
+
+
+function scientificCalculation(arrEntry) {
+
+    let arrLength = arrEntry.length;
+    let lastItem = arrEntry[arrLength - 1];
+
+    if ((lastItem == "*") || (lastItem == "/")) {
+        return entryStr;
+    }
+
+    if ((lastItem == "+") || (lastItem == "-")) {
+        arrEntry = arrEntry.slice(0, arrLength - 1);
+    }
+
+    let operationStr = arrEntry.join(' ');
+    console.log(operationStr);
+    let total = eval(operationStr);
     return total;
 }
 
