@@ -10,6 +10,7 @@ var isDivByZeroLockup = false;
 var isRecipMode = false;
 var doneEqual = false;
 var dingSound;
+var lastOprStr = "";
 
 function startCalculator() {
     document.getElementById("button0").addEventListener("click", numButtonClicked);
@@ -130,10 +131,12 @@ function doOperation(opr) {
     } else if (isRecipMode) {
         bufferEntry.push(opr);
         entryStr = calculate();
+        document.getElementById("resultText").innerHTML = getString(entryStr);
     } else {
         bufferEntry.push(entryStr);
         bufferEntry.push(opr);
         entryStr = calculate();
+        document.getElementById("resultText").innerHTML = getString(entryStr);
     }
 
     displayBufferEntry();
@@ -169,8 +172,14 @@ function equalButtonClicked(evt) {
         return;
     }
 
-    bufferEntry.push(entryStr);
-    entryStr = calculate();
+    if (bufferEntry.length == 0 && lastOprStr.length > 0) {
+        entryStr = repeatLastOperation();
+        document.getElementById("resultText").innerHTML = getString(entryStr);
+    } else {
+        bufferEntry.push(entryStr);
+        entryStr = calculate();
+        document.getElementById("resultText").innerHTML = getString(entryStr);
+    }
     clearBufferEntry();
     isOperatorMode = false;
     isRecipMode = false;
@@ -191,12 +200,15 @@ function calculate() {
         switch (operator) {
             case "+":
                 total += operand;
+                lastOprStr = " + " + operand;
                 break;
             case "-":
                 total -= operand;
+                lastOprStr = " - " + operand;
                 break;
             case "*":
                 total *= operand;
+                lastOprStr = " * " + operand;
                 break;
             case "/":
                 if (operand == 0) {
@@ -205,13 +217,18 @@ function calculate() {
                 }
                 console.log("total: ", total, " operand: ", operand);
                 total /= operand;
+                lastOprStr = " / " + operand;
                 console.log("new total: ", total);
                 break;
         }
     }
     total = prettyRound(total);
-    document.getElementById("resultText").innerHTML = getString(total);
     return getString(total);
+}
+
+function repeatLastOperation() {
+    let total = eval(entryStr + lastOprStr);
+    return prettyRound(total);
 }
 
 function displayBufferEntry() {
