@@ -1,16 +1,29 @@
-h1 {
+body {
+    background-color: #a66400;
+    background-image: url("../images/wood-pattern.png");
+    /* source: https://www.transparenttextures.com/wood-pattern.html */
+}
+
+#branding {
+    font-family: 'Pacifico', cursive;
+    color: dimgray;
+    /* color: #ffff66; */
     text-align: center;
+    vertical-align: center;
+    padding-top: 10px;
+    height: 20px;
 }
 
 #calculatorFrame {
     display: block;
     margin: auto;
+    margin-top: 50px;
     background-color: burlywood;
     width: 380px;
     height: 480px;
     text-align: right;
     border-radius: 3%;
-    box-shadow: -3px 3px 8px rgba(100,100,100,.8);
+    box-shadow: -6px 6px 14px rgba(100, 100, 100, .8);
 }
 
 #displayPanel {
@@ -21,7 +34,7 @@ h1 {
     padding: 10px;
     height: 40px;
     border-radius: 5px;
-    box-shadow: inset -1px 2px 8px rgba(100,100,100,.8);
+    box-shadow: inset -1px 2px 8px rgba(100, 100, 100, .8);
 }
 
 #previewText {
@@ -48,8 +61,8 @@ h1 {
     color: whitesmoke;
     background-color: brown;
     border-color: rgb(153, 38, 38);
-    border-radius: 20%;
-    box-shadow: -1px 2px 8px rgba(100,100,100,.8);
+    border-radius: 12px;
+    box-shadow: -1px 2px 8px rgba(100, 100, 100, .8);
     outline: none;
 }
 
@@ -57,4 +70,8 @@ h1 {
     background-color: rgb(219, 88, 88);
     box-shadow: 0 1px #666;
     transform: translateY(2px);
+}
+
+#button0 {
+    width: 124px;
 }
