@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,44 +10,50 @@
     <script src="scripts/calculator.js"></script>
     <title>BrianHo Calculator</title>
 </head>
+
 <body>
     <div id="calculatorFrame">
-            <div id="branding">Brian Ho Calculator</div>
-            <div id="displayPanel">
-                <div id="previewText">1 + 2 + 3 + 4 +</div>
-                <div id="resultText">0</div>
-            </div>
-            <div id="buttonContainer">
-                <button id="buttonMC" class="calButtons">MC</button>
-                <button id="buttonMR" class="calButtons">MR</button>
-                <button id="buttonMS" class="calButtons">MS</button>
-                <button id="buttonMadd" class="calButtons">M+</button>
-                <button id="buttonMsub" class="calButtons">M-</button>
-                <button id="buttonDel" class="calButtons">&larr;</button>
-                <button id="buttonCE" class="calButtons">CE</button>
-                <button id="buttonAC" class="calButtons">AC</button>
-                <button id="buttonAddSub" class="calButtons">&plusmn;</button>
-                <button id="buttonRadic" class="calButtons">&radic;</button>
-                <button id="button7" class="calButtons numButtons">7</button>
-                <button id="button8" class="calButtons numButtons">8</button>
-                <button id="button9" class="calButtons numButtons">9</button>
-                <button id="buttonDiv" class="calButtons">&divide;</button>
-                <button id="buttonPC" class="calButtons">%</button>
-                <button id="button4" class="calButtons numButtons">4</button>
-                <button id="button5" class="calButtons numButtons">5</button>
-                <button id="button6" class="calButtons numButtons">6</button>
-                <button id="buttonMul" class="calButtons">X</button>
-                <button id="buttonInv" class="calButtons">INV</button>
-                <button id="button1" class="calButtons numButtons">1</button>
-                <button id="button2" class="calButtons numButtons">2</button>
-                <button id="button3" class="calButtons numButtons">3</button>
-                <button id="buttonSub" class="calButtons">&minus;</button>
-                <button id="buttonEql" class="calButtons">=</button>
-                <button id="button0" class="calButtons numButtons">0</button>
-                <button id="buttonDot" class="calButtons">.</button>
-                <button id="buttonAdd" class="calButtons">+</button>
-
-            </div>
+        <div id="branding">Brian Ho Calculator</div>
+        <div id="displayPanel">
+            <div id="previewText">1 + 2 + 3 + 4 +</div>
+            <div id="resultText">0</div>
         </div>
+        <div id="buttonContainer">
+            <button id="buttonMC" class="calButtons">MC</button>
+            <button id="buttonMR" class="calButtons">MR</button>
+            <button id="buttonMS" class="calButtons">MS</button>
+            <button id="buttonMadd" class="calButtons">M+</button>
+            <button id="buttonMsub" class="calButtons">M-</button>
+            <button id="buttonDel" class="calButtons">&larr;</button>
+            <button id="buttonCE" class="calButtons">CE</button>
+            <button id="buttonAC" class="calButtons">AC</button>
+            <button id="buttonAddSub" class="calButtons">&plusmn;</button>
+            <button id="buttonRadic" class="calButtons">&radic;</button>
+            <button id="button7" class="calButtons numButtons">7</button>
+            <button id="button8" class="calButtons numButtons">8</button>
+            <button id="button9" class="calButtons numButtons">9</button>
+            <button id="buttonDiv" class="calButtons">&divide;</button>
+            <button id="buttonPC" class="calButtons">%</button>
+            <button id="button4" class="calButtons numButtons">4</button>
+            <button id="button5" class="calButtons numButtons">5</button>
+            <button id="button6" class="calButtons numButtons">6</button>
+            <button id="buttonMul" class="calButtons">X</button>
+            <button id="buttonInv" class="calButtons">INV</button>
+            <button id="button1" class="calButtons numButtons">1</button>
+            <button id="button2" class="calButtons numButtons">2</button>
+            <button id="button3" class="calButtons numButtons">3</button>
+            <button id="buttonSub" class="calButtons">&minus;</button>
+            <button id="buttonEql" class="calButtons">=</button>
+            <button id="button0" class="calButtons numButtons">0</button>
+            <button id="buttonDot" class="calButtons">.</button>
+            <button id="buttonAdd" class="calButtons">+</button>
+
+        </div>
+    </div>
+    <audio id="dingSound">
+        <source src="audio/the-ding.mp3" type="audio/mp3">
+        <source src="audio/the-ding.ogg" type="audio/ogg">
+    </audio>
 </body>
+
 </html>
