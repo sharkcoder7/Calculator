@@ -64,9 +64,9 @@ body {
 #buttonContainer {
     margin: 2px;
     padding-top: 2px;
-    padding-right: 9px;
+
     display: block;
-    text-align: right;
+    text-align: center;
 }
 
 .calButtons {
@@ -97,7 +97,7 @@ body {
 #buttonEql {
     height: 98px;
     float: right;
-    margin-left: 6px;
+    margin-right: 8.5px;
 }
 
 #button0 {
