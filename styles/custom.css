@@ -53,7 +53,7 @@ body {
     text-align: left;
 }
 
-.calButton {
+.calButtons {
     font-size: 1.2rem;
     width: 56px;
     height: 40px;
@@ -66,10 +66,16 @@ body {
     outline: none;
 }
 
-.calButton:active {
+.calButtons:active {
     background-color: rgb(219, 88, 88);
     box-shadow: 0 1px #666;
     transform: translateY(2px);
+}
+
+#buttonEql {
+    height: 98px;
+    float: right;
+    margin-right: 25px;
 }
 
 #button0 {
