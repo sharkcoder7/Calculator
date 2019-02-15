@@ -2,10 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', startCalculator);
 
-var fullEntry = [];
+var bufferEntry = [];
 var entryStr = "0";
 var hasDecimal = false;
-var isBlockMode = false;
+var isOperatorMode = false;
 var isDivByZeroLockup = false;
 var doneEqual = false;
 var dingSound;
@@ -23,6 +23,7 @@ function startCalculator() {
     document.getElementById("buttonEql").addEventListener("click", equalButtonClicked);
     document.getElementById("buttonMul").addEventListener("click", mulButtonClicked);
     document.getElementById("buttonDiv").addEventListener("click", divButtonClicked);
+    document.getElementById("buttonRECIP").addEventListener("click", recipButtonClicked);
 
     // initialize sound element
     dingSound = document.getElementById("dingSound");
@@ -40,7 +41,7 @@ function numButtonClicked(evt) {
         return;
     }
 
-    if (entryStr === "0") {
+    if (entryStr === "0" || isOperatorMode) {
         entryStr = getString(evt.target.innerText);
     } else if (doneEqual) {
         entryStr = evt.target.innerText;
@@ -50,7 +51,7 @@ function numButtonClicked(evt) {
     }
 
     document.getElementById("resultText").innerHTML = entryStr;
-    isBlockMode = false;
+    isOperatorMode = false;
 }
 
 function delButtonClicked(evt) {
@@ -59,7 +60,7 @@ function delButtonClicked(evt) {
         return;
     }
 
-    if (isBlockMode) {
+    if (isOperatorMode) {
         playDingSound();
         return;
     }
@@ -117,19 +118,31 @@ function doOperation(opr) {
         return;
     }
 
-    if (isBlockMode) {
-        fullEntry.pop();
-        fullEntry.push(opr);
+    if (isOperatorMode) {
+        bufferEntry.pop();
+        bufferEntry.push(opr);
     } else {
-        fullEntry.push(entryStr);
-        fullEntry.push(opr);
-        calculate();
-        entryStr = "0";
+        bufferEntry.push(entryStr);
+        bufferEntry.push(opr);
+        entryStr = calculate();
     }
 
-    displayFullEntry();
-    isBlockMode = true;
+    displayBufferEntry();
+    isOperatorMode = true;
     hasDecimal = false;
+}
+
+function recipButtonClicked(evt) {
+    if (isDivByZeroLockup) {
+        playDingSound();
+        return;
+    }
+
+    if (entryStr === "0") {
+        setDivideByZeroLockup();
+        playDingSound();
+        return;
+    }
 }
 
 function equalButtonClicked(evt) {
@@ -138,24 +151,24 @@ function equalButtonClicked(evt) {
         return;
     }
 
-    fullEntry.push(entryStr);
+    bufferEntry.push(entryStr);
     entryStr = calculate();
-    clearFullEntry();
-    isBlockMode = false;
+    clearBufferEntry();
+    isOperatorMode = false;
     hasDecimal = false;
     doneEqual = true;
 }
 
 function calculate() {
 
-    if (fullEntry.length < 3) {
+    if (bufferEntry.length < 3) {
         return entryStr;
     }
 
-    var total = Number(fullEntry[0]);
-    for(var i=1; i<fullEntry.length-1; i+=2) {
-        let operator = fullEntry[i];
-        let operand = Number(fullEntry[i+1]);
+    var total = Number(bufferEntry[0]);
+    for (var i = 1; i < bufferEntry.length - 1; i += 2) {
+        let operator = bufferEntry[i];
+        let operand = Number(bufferEntry[i + 1]);
         switch (operator) {
             case "+":
                 total += operand;
@@ -164,7 +177,7 @@ function calculate() {
                 total -= operand;
                 break;
             case "*":
-                total  *= operand;
+                total *= operand;
                 break;
             case "/":
                 if (operand == 0) {
@@ -177,15 +190,15 @@ function calculate() {
                 break;
         }
     }
-    total = Math.round(total * 100000000000) / 100000000000;    // round beautifully
+    total = Math.round(total * 100000000000) / 100000000000; // round beautifully
     document.getElementById("resultText").innerHTML = getString(total);
     return getString(total);
 }
 
-function displayFullEntry() {
+function displayBufferEntry() {
     let tmpStr = "";
 
-    fullEntry.forEach(item => {
+    bufferEntry.forEach(item => {
         tmpStr += item + " ";
     });
 
@@ -196,8 +209,8 @@ function displayFullEntry() {
     document.getElementById("progressText").innerHTML = tmpStr;
 }
 
-function clearFullEntry() {
-    fullEntry = [];
+function clearBufferEntry() {
+    bufferEntry = [];
     document.getElementById("progressText").innerHTML = "&nbsp;";
 }
 
@@ -209,8 +222,8 @@ function resetEntry() {
 
 function resetEverything() {
     resetEntry();
-    clearFullEntry();
-    isBlockMode = false;
+    clearBufferEntry();
+    isOperatorMode = false;
     isDivByZeroLockup = false;
     doneEqual = false;
 }
