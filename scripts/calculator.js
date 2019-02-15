@@ -45,25 +45,24 @@ function startCalculator() {
 
 function forceBrowserZoom() { // force zooming at 100%
     document.body.style.zoom = 1.0
-    
+
     var scale = 'scale(1.0)';
-    document.body.style.webkitTransform =  scale;    // Chrome, Opera, Safari
-    document.body.style.msTransform =   scale;       // IE 9
-    document.body.style.transform = scale;     // General
+    document.body.style.webkitTransform = scale; // Chrome, Opera, Safari
+    document.body.style.msTransform = scale; // IE 9
+    document.body.style.transform = scale; // General
 }
 
 function updateCalculationMode() {
     resetEverything();
     calcMode = document.getElementById("calculatorMode").value;
 
-    if (calcMode == 0) {
-        document.getElementById("modeExplanation").innerHTML = "Calculate from left to right, ignoring operator precedence";
-        document.getElementById("modeExample").innerHTML = "eg. 2 + 3 x 5 + 1 = 26";
-    } else {
+    if (calcMode == 1) {
         document.getElementById("modeExplanation").innerHTML = "Following operator precedence to do calculation";
         document.getElementById("modeExample").innerHTML = "eg. 2 + 3 x 5 + 1 = 18";
+    } else {
+        document.getElementById("modeExplanation").innerHTML = "Calculate from left to right, ignoring operator precedence";
+        document.getElementById("modeExample").innerHTML = "eg. 2 + 3 x 5 + 1 = 26";
     }
-
 }
 
 function numButtonClicked(evt) {
