@@ -40,6 +40,16 @@ function startCalculator() {
     // add listener to detect change of Calculator mode
     document.getElementById("calculatorMode").onchange = updateCalculationMode;
 
+    forceBrowserZoom();
+}
+
+function forceBrowserZoom() { // force zooming at 100%
+    document.body.style.zoom = 1.0
+    
+    var scale = 'scale(1.0)';
+    document.body.style.webkitTransform =  scale;    // Chrome, Opera, Safari
+    document.body.style.msTransform =   scale;       // IE 9
+    document.body.style.transform = scale;     // General
 }
 
 function updateCalculationMode() {

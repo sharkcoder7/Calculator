@@ -122,12 +122,14 @@ body {
     background: #ffffff88;
     padding: 10px 16px 0px 16px;
     border-radius: 10px;
-    width: 368px;
     margin-top: 10px;
+    width: 84%;
+    max-width: 400px;
 }
 
 #modeBar {
     display: flex;
     justify-content: center;
 }
+
 
