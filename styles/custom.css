@@ -1,0 +1,60 @@
+h1 {
+    text-align: center;
+}
+
+#calculatorFrame {
+    display: block;
+    margin: auto;
+    background-color: burlywood;
+    width: 380px;
+    height: 480px;
+    text-align: right;
+    border-radius: 3%;
+    box-shadow: -3px 3px 8px rgba(100,100,100,.8);
+}
+
+#displayPanel {
+    display: block;
+    font-family: 'Oxygen Mono', monospace;
+    background-color: gainsboro;
+    margin: 10px 24px;
+    padding: 10px;
+    height: 40px;
+    border-radius: 5px;
+    box-shadow: inset -1px 2px 8px rgba(100,100,100,.8);
+}
+
+#previewText {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+}
+
+#resultText {
+    font-size: 1.5rem;
+}
+
+#buttonContainer {
+    margin: 2px;
+    padding-left: 18px;
+    display: block;
+    text-align: left;
+}
+
+.calButton {
+    font-size: 1.2rem;
+    width: 56px;
+    height: 40px;
+    margin: 10px 4px;
+    color: whitesmoke;
+    background-color: brown;
+    border-color: rgb(153, 38, 38);
+    border-radius: 20%;
+    box-shadow: -1px 2px 8px rgba(100,100,100,.8);
+    outline: none;
+}
+
+.calButton:active {
+    background-color: rgb(219, 88, 88);
+    box-shadow: 0 1px #666;
+    transform: translateY(2px);
+}

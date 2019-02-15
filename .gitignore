@@ -1,0 +1,6 @@
+# ignore DS_store
+.DS_Store
+./**/.DS_Store
+
+# ignore Visual Studio code setup
+.vscode
