@@ -6,8 +6,8 @@ var bufferEntry = [];
 var entryStr = "0";
 var hasDecimal = false;
 var isOperatorMode = false;
-var isDivByZeroLockup = false;
-var isInvalidNumLockup = false;
+var divByZeroLockup = false;
+var invalidNumLockup = false;
 var isRecipMode = false;
 var isSqrtMode = false;
 var isPercentMode = false;
@@ -19,20 +19,9 @@ var memStorage = 0;
 var calcMode = 0;
 
 function startCalculator() {
-    document.getElementById("button0").addEventListener("click", numButtonClicked);
 
-    Array.from(document.getElementsByClassName("numButtons")).forEach(button => button.addEventListener("click", numButtonClicked));
-    Array.from(document.getElementsByClassName("oprButtons")).forEach(button => button.addEventListener("click", oprButtonClicked));
-    Array.from(document.getElementsByClassName("memButtons")).forEach(button => button.addEventListener("click", memButtonClicked));
-    document.getElementById("buttonDel").addEventListener("click", delButtonClicked);
-    document.getElementById("buttonDot").addEventListener("click", dotButtonClicked);
-    document.getElementById("buttonCE").addEventListener("click", clearEntryClicked);
-    document.getElementById("buttonAC").addEventListener("click", allClearClicked);
-    document.getElementById("buttonEql").addEventListener("click", equalButtonClicked);
-    document.getElementById("buttonRECIP").addEventListener("click", recipButtonClicked);
-    document.getElementById("buttonPer").addEventListener("click", buttonPercentClicked);
-    document.getElementById("buttonNeg").addEventListener("click", buttonNegateClicked);
-    document.getElementById("buttonSqrt").addEventListener("click", sqrtButtonClicked);
+    // listen to button click
+    Array.from(document.getElementsByClassName("calButtons")).forEach(button => button.addEventListener("click", buttonPressed));
 
     // initialize sound element
     dingSound = document.getElementById("dingSound");
@@ -65,8 +54,70 @@ function updateCalculationMode() {
     }
 }
 
+function buttonPressed(evt) {
+    let buttonName = evt.target.value;
+
+    switch(buttonName) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '0':
+            numButtonClicked(evt);
+            break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+            oprButtonClicked(evt);
+            break;
+        case 'MC':
+        case 'MR':
+        case 'MS':
+        case 'M+':
+        case 'M-':
+            memButtonClicked(evt);
+            break;
+        case 'Del':
+            delButtonClicked(evt);
+            break;
+        case '.':
+            dotButtonClicked(evt);
+            break; 
+        case 'CE':
+            clearEntryClicked(evt);
+            break;
+        case 'AC':
+            allClearClicked(evt);
+            break;
+        case '=':
+            equalButtonClicked(evt);
+            break;
+        case 'Recip':
+            recipButtonClicked(evt);
+            break;
+        case 'Per':
+            buttonPercentClicked(evt);
+            break;
+        case 'Plmn':
+            buttonNegateClicked(evt);
+            break;
+        case 'Sqrt':
+            sqrtButtonClicked(evt);
+            break;
+        default:
+            console.log("Error: unhandled case ", evt.target);
+    }
+}
+
 function numButtonClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup ||
+    if (isErrorLockup() ||
         (!isOperatorMode && !doneEqual && !isRecipMode && !isSqrtMode && isTooLong(entryStr))) {
         playDingSound();
         return;
@@ -98,7 +149,7 @@ function numButtonClicked(evt) {
 function oprButtonClicked(evt) {
     let opr = evt.target.value;
 
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
     }
@@ -123,6 +174,12 @@ function oprButtonClicked(evt) {
 }
 
 function memButtonClicked(evt) {
+
+    if (isErrorLockup()) {
+        playDingSound();
+        return;
+    }
+
     let buttonName = evt.target.value
     switch (buttonName) {
         case "MC":
@@ -186,7 +243,7 @@ function memorySub() {
 
 function delButtonClicked(evt) {
 
-    if (isDivByZeroLockup || isInvalidNumLockup ||
+    if (isErrorLockup() ||
         isOperatorMode || doneEqual || isRecipMode ||
         isSqrtMode || isPercentMode) {
         playDingSound();
@@ -207,7 +264,7 @@ function delButtonClicked(evt) {
 }
 
 function dotButtonClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
     }
@@ -226,9 +283,13 @@ function dotButtonClicked(evt) {
 
 
 function recipButtonClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
+    }
+
+    if (!isOperatorMode && (isRecipMode || isSqrtMode)) {
+        bufferEntry.pop();
     }
 
     let formatStr = "recip(" + entryStr + ")";
@@ -248,9 +309,13 @@ function recipButtonClicked(evt) {
 }
 
 function sqrtButtonClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
+    }
+
+    if (!isOperatorMode && (isRecipMode || isSqrtMode)) {
+        bufferEntry.pop();
     }
 
     let formatStr = "sqrt(" + entryStr + ")";
@@ -269,7 +334,7 @@ function sqrtButtonClicked(evt) {
 }
 
 function equalButtonClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
     }
@@ -291,23 +356,31 @@ function equalButtonClicked(evt) {
 }
 
 function buttonPercentClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
+    }
+
+    if (!isOperatorMode && (isRecipMode || isSqrtMode)) {
+        isRecipMode = false;
+        isSqrtMode = false;
+        bufferEntry.pop();
     }
 
     if (bufferEntry.length < 2) {
         entryStr = getString(prettyRound(getNumber(entryStr) / 100));
     } else {
+
         let referValue = bufferEntry[bufferEntry.length - 2];
         entryStr = getString(prettyRound(getNumber(referValue) * getNumber(entryStr) / 100));
     }
     isPercentMode = true;
     displayResultEntry(entryStr);
+    displayBufferEntry();
 }
 
 function buttonNegateClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         playDingSound();
         return;
     }
@@ -405,17 +478,17 @@ function displayBufferEntry() {
     });
 
     let length = tmpStr.length;
-    if (length > 40) {
-        tmpStr = "&#8810;" + tmpStr.substring(length - 39, length - 1);
+    if (length > 36) {
+        tmpStr = "&#8810;" + " " + tmpStr.substring(length - 35, length - 1);
     }
     document.getElementById("progressText").innerHTML = tmpStr;
 }
 
 function displayResultEntry(numStr) {
 
-    if (isDivByZeroLockup) {
+    if (divByZeroLockup) {
         numStr = "cannot divide by zero";
-    } else if (isInvalidNumLockup) {
+    } else if (invalidNumLockup) {
         numStr = "invalid number";
     }
 
@@ -446,8 +519,8 @@ function resetEntry() {
     hasDecimal = false;
     doneEqual = false;
     isPercentMode = false;
-    isDivByZeroLockup = false;
-    isInvalidNumLockup = false;
+    divByZeroLockup = false;
+    invalidNumLockup = false;
     displayResultEntry(entryStr);
 }
 
@@ -461,7 +534,7 @@ function resetEverything() {
 }
 
 function clearEntryClicked(evt) {
-    if (isDivByZeroLockup || isInvalidNumLockup) {
+    if (isErrorLockup()) {
         resetEverything();
     } else {
         resetEntry();
@@ -473,11 +546,15 @@ function allClearClicked(evt) {
 }
 
 function setDivideByZeroLockup() {
-    isDivByZeroLockup = true;
+    divByZeroLockup = true;
 }
 
 function setInvalidNumLockup() {
-    isInvalidNumLockup = true;
+    invalidNumLockup = true;
+}
+
+function isErrorLockup() {
+    return (divByZeroLockup || invalidNumLockup);
 }
 
 function playDingSound() {
