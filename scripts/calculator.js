@@ -7,25 +7,31 @@ var entryStr = "0";
 var hasDecimal = false;
 var isOperatorMode = false;
 var isDivByZeroLockup = false;
+var isInvalidNumLockup = false;
 var isRecipMode = false;
+var isSqrtMode = false;
+var isPercentMode = false;
+var isMemoryMode = false;
 var doneEqual = false;
 var dingSound;
 var lastOprStr = "";
+var memStorage = 0;
 
 function startCalculator() {
     document.getElementById("button0").addEventListener("click", numButtonClicked);
 
     Array.from(document.getElementsByClassName("numButtons")).forEach(button => button.addEventListener("click", numButtonClicked));
+    Array.from(document.getElementsByClassName("oprButtons")).forEach(button => button.addEventListener("click", oprButtonClicked));
+    Array.from(document.getElementsByClassName("memButtons")).forEach(button => button.addEventListener("click", memButtonClicked));
     document.getElementById("buttonDel").addEventListener("click", delButtonClicked);
     document.getElementById("buttonDot").addEventListener("click", dotButtonClicked);
     document.getElementById("buttonCE").addEventListener("click", clearEntryClicked);
     document.getElementById("buttonAC").addEventListener("click", allClearClicked);
-    document.getElementById("buttonAdd").addEventListener("click", addButtonClicked);
-    document.getElementById("buttonSub").addEventListener("click", subButtonClicked);
     document.getElementById("buttonEql").addEventListener("click", equalButtonClicked);
-    document.getElementById("buttonMul").addEventListener("click", mulButtonClicked);
-    document.getElementById("buttonDiv").addEventListener("click", divButtonClicked);
     document.getElementById("buttonRECIP").addEventListener("click", recipButtonClicked);
+    document.getElementById("buttonPer").addEventListener("click", buttonPercentClicked);
+    document.getElementById("buttonNeg").addEventListener("click", buttonNegateClicked);
+    document.getElementById("buttonSqrt").addEventListener("click", sqrtButtonClicked);
 
     // initialize sound element
     dingSound = document.getElementById("dingSound");
@@ -33,35 +39,129 @@ function startCalculator() {
 }
 
 function numButtonClicked(evt) {
-    if (isDivByZeroLockup ||
-       (!doneEqual && !isRecipMode && isTooLong(entryStr))) {
+    if (isDivByZeroLockup || isInvalidNumLockup ||
+        (!isOperatorMode && !doneEqual && !isRecipMode && !isSqrtMode && isTooLong(entryStr))) {
         playDingSound();
         return;
     }
 
-    if (entryStr === "0" || isOperatorMode) {
+    if (entryStr === "0" || isOperatorMode || doneEqual ||
+        isRecipMode || isSqrtMode || isPercentMode ||
+        isMemoryMode) {
+
         entryStr = getString(evt.target.innerText);
-    } else if (isRecipMode) {
-        entryStr = getString(evt.target.innerText);
-        bufferEntry.pop();
-        isRecipMode = false;
-        displayBufferEntry();
-    } else if (doneEqual) {
-        entryStr = evt.target.innerText;
+
+        if (!isOperatorMode && (isRecipMode || isSqrtMode)) {
+            bufferEntry.pop();
+            displayBufferEntry();
+        }
+        isOperatorMode = false;
         doneEqual = false;
+        isRecipMode = false;
+        isSqrtMode = false;
+        isPercentMode = false;
+        isMemoryMode = false;
     } else {
         entryStr += evt.target.innerText;
     }
+    displayResultEntry(entryStr);
+}
 
-    document.getElementById("resultText").innerHTML = entryStr;
-    isOperatorMode = false;
+
+function oprButtonClicked(evt) {
+    let opr = evt.target.value;
+
+    if (isDivByZeroLockup || isInvalidNumLockup) {
+        playDingSound();
+        return;
+    }
+
+    if (isOperatorMode) {
+        bufferEntry.pop();
+        bufferEntry.push(opr);
+    } else if (isRecipMode || isSqrtMode) {
+        bufferEntry.push(opr);
+        entryStr = calculate();
+        displayResultEntry(entryStr);
+    } else {
+        bufferEntry.push(entryStr);
+        bufferEntry.push(opr);
+        entryStr = calculate();
+        displayResultEntry(entryStr);
+    }
+
+    displayBufferEntry();
+    isOperatorMode = true;
+    hasDecimal = false;
+}
+
+function memButtonClicked(evt) {
+    let buttonName = evt.target.value
+    switch (buttonName) {
+        case "MC":
+            memoryClear();
+            break;
+        case "MR":
+            memoryRecall();
+            break;
+        case "MS":
+            memorySet();
+            break;
+        case "M+":
+            memoryPlus();
+            break;
+        case "M-":
+            memorySub();
+            break;
+    }
+    isMemoryMode = true;
+}
+
+function memoryClear() {
+    memStorage = 0;
+    hideMemoryIndicator();
+}
+
+function memoryRecall() {
+    entryStr = getString(prettyRound(memStorage));
+    displayResultEntry(entryStr);
+
+    if (!isOperatorMode && (isRecipMode || isSqrtMode)) {
+        bufferEntry.pop();
+        displayBufferEntry();
+    }
+    isRecipMode = false;
+    isSqrtMode = false;
+}
+
+function memorySet() {
+    memStorage = getNumber(entryStr);
+    showMemoryIndicator();
+}
+
+function memoryPlus() {
+    memStorage += prettyRound(getNumber(entryStr));
+    if (memStorage == 0) {
+        hideMemoryIndicator();
+    } else {
+        showMemoryIndicator();
+    }
+}
+
+function memorySub() {
+    memStorage -= prettyRound(getNumber(entryStr));
+    if (memStorage == 0) {
+        hideMemoryIndicator();
+    } else {
+        showMemoryIndicator();
+    }
 }
 
 function delButtonClicked(evt) {
 
-    if (isDivByZeroLockup ||
-        isOperatorMode ||
-        doneEqual) {
+    if (isDivByZeroLockup || isInvalidNumLockup ||
+        isOperatorMode || doneEqual || isRecipMode ||
+        isSqrtMode || isPercentMode) {
         playDingSound();
         return;
     }
@@ -76,11 +176,11 @@ function delButtonClicked(evt) {
     } else {
         entryStr = numStr;
     }
-    document.getElementById("resultText").innerHTML = entryStr;
+    displayResultEntry(entryStr);
 }
 
 function dotButtonClicked(evt) {
-    if (isDivByZeroLockup) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
         playDingSound();
         return;
     }
@@ -94,52 +194,12 @@ function dotButtonClicked(evt) {
     }
     hasDecimal = true;
     entryStr += ".";
-    document.getElementById("resultText").innerHTML = entryStr;
+    displayResultEntry(entryStr);
 }
 
-function addButtonClicked(evt) {
-    doOperation("+");
-}
-
-function subButtonClicked(evt) {
-    doOperation("-");
-}
-
-function mulButtonClicked(evt) {
-    doOperation("*");
-}
-
-function divButtonClicked(evt) {
-    doOperation("/");
-}
-
-function doOperation(opr) {
-    if (isDivByZeroLockup) {
-        playDingSound();
-        return;
-    }
-
-    if (isOperatorMode) {
-        bufferEntry.pop();
-        bufferEntry.push(opr);
-    } else if (isRecipMode) {
-        bufferEntry.push(opr);
-        entryStr = calculate();
-        document.getElementById("resultText").innerHTML = getString(entryStr);
-    } else {
-        bufferEntry.push(entryStr);
-        bufferEntry.push(opr);
-        entryStr = calculate();
-        document.getElementById("resultText").innerHTML = getString(entryStr);
-    }
-
-    displayBufferEntry();
-    isOperatorMode = true;
-    hasDecimal = false;
-}
 
 function recipButtonClicked(evt) {
-    if (isDivByZeroLockup) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
         playDingSound();
         return;
     }
@@ -150,35 +210,82 @@ function recipButtonClicked(evt) {
         return;
     }
 
-    let recipStr = "recip(" + entryStr + ")";
-    bufferEntry.push(recipStr);
-    entryStr = 1 / getNumber(entryStr);
-    entryStr = prettyRound(entryStr);
     isRecipMode = true;
-    document.getElementById("resultText").innerHTML = getString(entryStr);
+    let formatStr = "recip(" + entryStr + ")";
+    bufferEntry.push(formatStr);
+    entryStr = getString(prettyRound(1 / getNumber(entryStr)));
+    displayResultEntry(entryStr);
     displayBufferEntry();
 
 }
 
+function sqrtButtonClicked(evt) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
+        playDingSound();
+        return;
+    }
+
+    if (getNumber(entryStr) < 0) {
+        setInvalidNumLockup();
+        playDingSound();
+        return;
+    }
+
+    isSqrtMode = true;
+    let formatStr = "sqrt(" + entryStr + ")";
+    bufferEntry.push(formatStr);
+    entryStr = getString(prettyRound(sqrt(entryStr)));
+    displayResultEntry(entryStr);
+    displayBufferEntry();
+}
+
 function equalButtonClicked(evt) {
-    if (isDivByZeroLockup) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
         playDingSound();
         return;
     }
 
     if (bufferEntry.length == 0 && lastOprStr.length > 0) {
         entryStr = repeatLastOperation();
-        document.getElementById("resultText").innerHTML = getString(entryStr);
     } else {
         bufferEntry.push(entryStr);
         entryStr = calculate();
-        document.getElementById("resultText").innerHTML = getString(entryStr);
     }
+    displayResultEntry(entryStr);
     clearBufferEntry();
     isOperatorMode = false;
     isRecipMode = false;
+    isSqrtMode = false;
     hasDecimal = false;
+    isPercentMode = false;
     doneEqual = true;
+}
+
+function buttonPercentClicked(evt) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
+        playDingSound();
+        return;
+    }
+
+    if (bufferEntry.length < 2) {
+        entryStr = getString(prettyRound(getNumber(entryStr) / 100));
+    } else {
+        let referValue = bufferEntry[bufferEntry.length - 2];
+        entryStr = getString(prettyRound(getNumber(referValue) * getNumber(entryStr) / 100));
+    }
+    isPercentMode = true;
+    displayResultEntry(entryStr);
+}
+
+function buttonNegateClicked(evt) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
+        playDingSound();
+        return;
+    }
+
+    let num = getNumber(entryStr);
+    entryStr = getString(-num);
+    displayResultEntry(entryStr);
 }
 
 function calculate() {
@@ -239,6 +346,24 @@ function displayBufferEntry() {
     document.getElementById("progressText").innerHTML = tmpStr;
 }
 
+function displayResultEntry(numStr) {
+    let el = document.getElementById("resultText");
+    if (numStr.length > 17) {
+        el.style.fontSize = "1.2rem";
+    } else {
+        el.style.fontSize = "1.4rem";
+    }
+    el.innerHTML = numStr;
+}
+
+function showMemoryIndicator() {
+    document.getElementById("memIndicator").innerHTML = "M";
+}
+
+function hideMemoryIndicator() {
+    document.getElementById("memIndicator").innerHTML = "";
+}
+
 function clearBufferEntry() {
     bufferEntry = [];
     document.getElementById("progressText").innerHTML = "";
@@ -248,7 +373,8 @@ function resetEntry() {
     entryStr = "0";
     hasDecimal = false;
     doneEqual = false;
-    document.getElementById("resultText").innerHTML = entryStr;
+    isPercentMode = false;
+    displayResultEntry(entryStr);
 }
 
 function resetEverything() {
@@ -256,12 +382,14 @@ function resetEverything() {
     clearBufferEntry();
     isOperatorMode = false;
     isRecipMode = false;
+    isSqrtMode = false;
     isDivByZeroLockup = false;
+    isInvalidNumLockup = false;
     lastOprStr = "";
 }
 
 function clearEntryClicked(evt) {
-    if (isDivByZeroLockup) {
+    if (isDivByZeroLockup || isInvalidNumLockup) {
         resetEverything();
     } else {
         resetEntry();
@@ -273,11 +401,17 @@ function allClearClicked(evt) {
 }
 
 function setDivideByZeroLockup() {
-    document.getElementById("resultText").innerHTML = "cannot divide by zero";
+    displayResultEntry("cannot divide by zero");
     isDivByZeroLockup = true;
 }
 
+function setInvalidNumLockup() {
+    displayResultEntry("invalid number");
+    isInvalidNumLockup = true;
+}
+
 function playDingSound() {
+    //console.log(new Error().stack);
     dingSound.currentTime = 0; // stop old playing sound
     dingSound.play();
 }
@@ -292,10 +426,11 @@ function getNumber(str) {
         return Number(str);
     }
 
-    let regex = /^recip/i;
-    if (regex.test(str)) {
+    let regex1 = /^recip/i;
+    let regex2 = /^sqrt/i;
+
+    if (regex1.test(str) || regex2.test(str)) {
         let num = eval(str);
-        console.log("recip: ", num);
         return num;
     }
 
@@ -306,9 +441,7 @@ function getNumber(str) {
 function isTooLong(str) {
 
     // Force to become a string before continue
-    if (typeof str !== String) {
-        str = getString(str);
-    }
+    str = getString(str);
 
     let tmpStr = str.replace(".", "");
     if (tmpStr.length == 16) {
@@ -323,4 +456,8 @@ function prettyRound(num) {
 
 function recip(num) {
     return 1 / num;
+}
+
+function sqrt(num) {
+    return Math.sqrt(num);
 }
